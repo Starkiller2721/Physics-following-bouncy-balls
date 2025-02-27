@@ -186,6 +186,8 @@ void ball()
   }
 }
 
+//this function currently doesn't run
+
 void collision()
 {
   for (int c = 0; c < y.length; c++)

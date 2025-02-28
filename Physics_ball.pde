@@ -16,7 +16,7 @@ boolean auto_bounce = false;
 int size = 30;
 
 int[] ballcolor = {#FF0000, #1CFF00, #FF00EF, #00E8FF, #FF0000};
-int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF,#FF8D00, #FF6CFF};
+int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF,#FF8D00, #FF6CFF, #FE0002, #41FDFE, #BC13FE};
 
 void setup()
 {
@@ -158,6 +158,11 @@ void ball()
     {
       if (x[i] > x[c]-(size/2) && x[i] < x[c]+(size/2)  &&  y[i] > y[c]-(size/2) && y[i] < y[c]+(size/2))
       {
+        y[i] ++;
+        x[i] ++;
+        y[c] --;
+        x[c] --;
+        
         speed[i] *= -1.001;
         xspeed[i] *= -1.001;
         speed[c] *= -1.001;
@@ -189,25 +194,6 @@ void ball()
         {
           xspeed[c] -= 30;
         }
-      }
-    }
-  }
-}
-
-//this function currently doesn't run
-
-void collision()
-{
-  for (int c = 0; c < y.length; c++)
-  {
-    for (int i = 0; i < x.length; i++)
-    {
-      if (x[i] > x[c]-(size/2) && x[i] < x[c]+(size/2)  &&  y[i] > y[c]-(size/2) && y[i] < y[c]+(size/2))
-      {
-        speed[i] *= -1;
-        xspeed[i] *= -1;
-        speed[c] *= -1;
-        xspeed[c] *= -1;
       }
     }
   }

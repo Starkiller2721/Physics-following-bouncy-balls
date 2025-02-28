@@ -14,7 +14,7 @@ int ballincrease = 1;
 boolean auto_bounce = true;
 boolean ball_counter = fales;
 
-int size = 30;
+int[] size = {20};
 
 //scalefactor:1
 int scalefactor = 1;
@@ -71,6 +71,7 @@ void mousePressed()
     speed = append(speed, int(random(-40, 40)));
     xspeed = append(xspeed, int(random(-60,60)));
     ballcolor = append(ballcolor, colors[int(random(0,colors.length))]);
+    size = append(size, int(random(20, 60)));
   }
 }
 
@@ -171,19 +172,40 @@ void ball()
       y[c] = (size/2 + 2);
       speed[c] *= damping;
     }
-    for (int i = 0; i < x.length; i++)
+
+    if (x.length > 1)
     {
-      if (x[i] > x[c]-(size/2) && x[i] < x[c]+(size/2)  &&  y[i] > y[c]-(size/2) && y[i] < y[c]+(size/2))
+      for (int i = 0; i < x.length; i++)
       {
-        y[i] ++;
-        x[i] ++;
-        y[c] --;
-        x[c] --;
-        
-        speed[i] *= -1.001;
-        xspeed[i] *= -1.001;
-        speed[c] *= -1.001;
-        xspeed[c] *= -1.001;
+        if (i != c) // Prevent self-collision
+        {
+          float dx = x[i] - x[c];
+          float dy = y[i] - y[c];
+          float distance = sqrt(dx * dx + dy * dy);
+          float minDist = (size[i] / 2.0) + (size[c] / 2.0);
+
+          if (distance < minDist) 
+          {
+            float overlap = minDist - distance;
+            x[i] += dx / distance * overlap / 2;
+            y[i] += dy / distance * overlap / 2;
+            x[c] -= dx / distance * overlap / 2;
+            y[c] -= dy / distance * overlap / 2;
+            
+            float massC = pow(size[i] / 2.0, 2); // mass proportional to volume
+            float massI = pow(size[i] / 2.0, 2);
+            
+            float newSpeedC = ((massC - massI) * speed[c] + 2 * massI * speed[i]) / (massC + massI);
+            float newSpeedI = ((massI - massC) * speed[i] + 2 * massC * speed[c]) / (massC + massI);
+            float newXspeedC = ((massC - massI) * xspeed[c] + 2 * massI * xspeed[i]) / (massC + massI);
+            float newXspeedI = ((massI - massC) * xspeed[i] + 2 * massC * xspeed[c]) / (massC + massI);
+            
+            speed[c] = newSpeedC;
+            speed[i] = newSpeedI;
+            xspeed[c] = newXspeedC;
+            xspeed[i] = newXspeedI;
+          }
+        }
       }
     }
   }

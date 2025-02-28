@@ -15,6 +15,9 @@ boolean auto_bounce = false;
 
 int size = 30;
 
+int[] ballcolor = {#FF0000, #1CFF00, #FF00EF, #00E8FF, #FF0000};
+int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF,#FF8D00, #FF6CFF};
+
 void setup()
 {
   noStroke();
@@ -23,6 +26,11 @@ void setup()
   damping /= -1;
   background(0);
   ellipseMode(CENTER);
+
+  for (int c = 0; c < y.length; c++)
+  {
+    ballcolor[c] = colors[int(random(0,colors.length))];
+  }
 }
 
 void draw()
@@ -32,10 +40,9 @@ void draw()
   ball();
   
   //drawing ball
-  fill(255, 0, 0);
-  
   for (int c = 0; c < y.length; c++)
   {
+    fill(ballcolor[c]);
     ellipse(x[c], y[c], size, size);
   }
 }
@@ -52,6 +59,7 @@ void mousePressed()
     y = append(y, y2);
     speed = append(speed, int(random(-40, 40)));
     xspeed = append(xspeed, int(random(-60,60)));
+    ballcolor = append(ballcolor, colors[int(random(0,colors.length))]);
   }
 }
 

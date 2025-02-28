@@ -12,9 +12,9 @@ int yspeedChange = 10;
 int ballincrease = 1;
 
 boolean auto_bounce = true;
-boolean ball_counter = fales;
+boolean ball_counter = false;
 
-int[] size = {20};
+int[] size = {20, 35, 56};
 
 //scalefactor:1
 int scalefactor = 1;
@@ -47,7 +47,7 @@ void draw()
   for (int c = 0; c < y.length; c++)
   {
     fill(ballcolor[c]);
-    ellipse(x[c], y[c], size, size);
+    ellipse(x[c], y[c], size[c], size[c]);
   }
 
   //drawing a counter of every ball
@@ -150,26 +150,30 @@ void ball()
   
   
     //bounces on left and right edges
-    if (x[c] > width - (size/2 - 2))
+    if (x[c] > width - (size[c]/2 - 2))
     {
-      x[c] = width - (size/2 - 2);
+      //x[c] = size[c];
+      
+      x[c] = width - size[c];
       xspeed[c] *= damping;
     }
-    else if (x[c] < (size/2 + 2))
+    else if (x[c] < (size[c]/2 + 2))
     {
-      x[c] = (size/2);
+      //x[c] = width - size[c];
+      
+      x[c] = size[c];
       xspeed[c] *= damping;
     }
   
     //bounces on top and bottom
-    if (y[c] > height - (size/2 - 2))
+    if (y[c] > height - (size[c]/2 - 2))
     {
-      y[c] = height - (size/2 - 2);
+      y[c] = height - (size[c]/2 - 2);
       speed[c] *= damping;
     }
-    else if (y[c] < (size/2 + 2))
+    else if (y[c] < (size[c]/2 + 2))
     {
-      y[c] = (size/2 + 2);
+      y[c] = (size[c]/2 + 2);
       speed[c] *= damping;
     }
 

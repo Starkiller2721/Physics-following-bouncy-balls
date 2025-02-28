@@ -11,12 +11,16 @@ int xspeedChange = 10;
 int yspeedChange = 10;
 int ballincrease = 1;
 
-boolean auto_bounce = false;
+boolean auto_bounce = true;
+boolean ball_counter = fales;
 
 int size = 30;
 
+//scalefactor:1
+int scalefactor = 1;
+
 int[] ballcolor = {#FF0000, #1CFF00, #FF00EF, #00E8FF, #FF0000};
-int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF,#FF8D00, #FF6CFF, #FE0002, #41FDFE, #BC13FE};
+int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF,#FF8D00, #FF6CFF, #FE0002, #41FDFE, #BC13FE, #7e15db};
 
 void setup()
 {
@@ -44,6 +48,13 @@ void draw()
   {
     fill(ballcolor[c]);
     ellipse(x[c], y[c], size, size);
+  }
+
+  //drawing a counter of every ball
+  if (ball_counter)
+  {
+    fill(255);
+    text(x.length,30, 30);
   }
 }
 
@@ -103,6 +114,12 @@ void keyPressed()
   {
     auto_bounce = !auto_bounce;
   }
+
+  //activates the ball counter
+  if (key == 'e' || key == 'E')
+  {
+    ball_counter = !ball_counter;
+  }
 }
 
 //**************************************
@@ -114,8 +131,8 @@ void ball()
   //motion
   for (int c = 0; c < y.length; c++)
   {
-    x[c] += xspeed[c];
-    y[c] += speed[c];
+    x[c] += xspeed[c] / scalefactor;
+    y[c] += speed[c] / scalefactor;
     speed[c] += gravity;
   
   

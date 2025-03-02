@@ -4,20 +4,32 @@ float[] x = {960};
 float[] y = {100};
 
 float gravity = .98;
-float damping = 0.6;
+float damping = 0.5;
 float pushFactor = 0.6;
 
 int xspeedChange = 10;
 int yspeedChange = 10;
-int ballincrease = 10;
-int maxsize = 30;
-int minsize = 10;
+int ballincrease = 100;
+int maxsize = 10;
+int minsize = 4;
 
 boolean auto_bounce = false;
 boolean ball_counter = false;
 boolean no_gravity = true;
 
-int[] size = {20};
+//walls
+boolean left = true;
+boolean right = true;
+boolean up = true;
+boolean down = true;
+
+//gravity
+boolean gup = false;
+boolean gdwn = true;
+boolean gleft = false;
+boolean gright = false;
+
+int[] size = {10};
 float g = 6.674e-4;
 
 //scalefactor:1
@@ -36,7 +48,7 @@ void setup()
   //background(0);
   ellipseMode(CENTER);
 
-  for (int c = 0; c < y.length; c++)
+  for (int c = 0; c < x.length; c++)
   {
     ballcolor[c] = colors[int(random(0,colors.length))];
   }
@@ -87,34 +99,33 @@ void keyPressed()
   //moves ball faster horizontally
   if (key == 's' || key == 'S')
   {
-    for (int c = 0; c < y.length; c++)
-    {
-      if (xspeed[c] >= 0)
-      {
-        xspeed[c] += xspeedChange;
-      }
-      else
-      {
-        xspeed[c] -= xspeedChange;
-      }
-    }
+    gdwn = true;
+    gleft = false;
+    gright = false;
+    gup = false;
   }
-  
-  //moves ball faster vertically
   if (key == 'w' || key == 'W')
   {
-    for (int c = 0; c < y.length; c++)
-    {
-      if (speed[c] > 0)
-      {
-        speed[c] += yspeedChange;
-      }
-      else
-      {
-        speed[c] -= yspeedChange;
-      }
-    }
+    gdwn = false;
+    gleft = false;
+    gright = false;
+    gup = true;
   }
+  if (key == 'a' || key == 'A')
+  {
+    gdwn = false;
+    gleft = true;
+    gright = false;
+    gup = false;
+  }
+  if (key == 'd' || key == 'D')
+  {
+    gdwn = false;
+    gleft = false;
+    gright = true;
+    gup = false;
+  }
+    
   
   //activates auto bounce when moving too slowly
   if (key == 'f' || key == 'F')
@@ -133,6 +144,25 @@ void keyPressed()
   {
     no_gravity = !no_gravity;
   }
+  
+  //walls
+  if (keyCode == UP)
+  {
+    up = !up;
+  }
+  else if (keyCode == DOWN)
+  {
+    down = !down;
+  }
+  else if (keyCode == RIGHT)
+  {
+    right = !right;
+  }
+  else if (keyCode == LEFT)
+  {
+    left = !left;
+    text("Success", 30, 30);
+  }
 }
 
 //**************************************
@@ -149,10 +179,23 @@ void ball()
     
     if (!no_gravity)
     {
-      speed[c] += gravity;
-      damping = -0.9;
-      g = 6.674e-3;
-    
+      if (gdwn)
+      {
+        speed[c] += gravity;
+      } 
+      else if (gup)
+      {
+        speed[c] -= gravity;
+      }
+      else if (gright)
+      {
+        xspeed[c] += gravity;
+      }
+      else
+      {
+        xspeed[c] -= gravity;
+      }
+      
       //makes ball slow down in corrisponding direction
       if (xspeed[c] > 1)
       {
@@ -163,38 +206,46 @@ void ball()
        xspeed[c] += .01;
       }
     }
-    else
-    {
-      damping = -.6;
-      g = 6.674e-2;
-    }
   
     //wraps around left and right edges
-    if (x[c] > width - (size[c]/2 - 2))
+    
+    if (right)
     {
-      //x[c] = size[c];
-      
-      x[c] = width - size[c] / 2 - 2;
-      xspeed[c] *= damping;
+      if (x[c] > width - (size[c]/2 - 2))
+      {
+        //x[c] = size[c];
+        
+        x[c] = width - size[c] / 2 - 2;
+        xspeed[c] *= damping;
+      }
     }
-    else if (x[c] < (size[c]/2 + 2))
+    if (left)
     {
-      //x[c] = width - size[c];
-      
-      x[c] = size[c] / 2 + 2;
-      xspeed[c] *= damping;
+      if (x[c] < (size[c]/2 + 2))
+      {
+        //x[c] = width - size[c];
+        
+        x[c] = size[c] / 2 + 2;
+        xspeed[c] *= damping;
+      }
     }
   
     //bounces on top and bottom
-    if (y[c] > height - (size[c]/2 - 2))
+    if (down)
     {
-      y[c] = height - (size[c]/2 - 2);
-      speed[c] *= damping;
+      if (y[c] > height - (size[c]/2 - 2))
+      {
+        y[c] = height - (size[c]/2 - 2);
+        speed[c] *= damping;
+      }
     }
-    else if (y[c] < (size[c]/2 + 2))
+    if (up)
     {
-      y[c] = (size[c]/2 + 2);
-      speed[c] *= damping;
+      if (y[c] < (size[c]/2 + 2))
+      {
+        y[c] = (size[c]/2 + 2);
+        speed[c] *= damping;
+      }
     }
     
     //fill(255);
@@ -221,8 +272,8 @@ void ball()
             x[c] -= dx / distance * overlap * pushFactor;
             y[c] -= dy / distance * overlap * pushFactor;
             
-            float massC = pow(size[i] / 2.0, 2); // mass proportional to volume
-            float massI = pow(size[i] / 2.0, 2);
+            float massC = pow(size[c], 2);
+            float massI = pow(size[i], 2);
             
             float newSpeedC = ((massC - massI) * speed[c] + 2 * massI * speed[i]) / (massC + massI);
             float newSpeedI = ((massI - massC) * speed[i] + 2 * massC * speed[c]) / (massC + massI);
@@ -288,7 +339,10 @@ void gravity()
 
       if (d > 0)  // Avoid division by zero
       {
-        float force = (g * size[c] * size[i]) / (d * d);  // Gravitational force
+        float massC = size[c];
+        float massI = size[i];
+        
+        float force = (g * massC * massI) / (d * d);  // Gravitational force
 
         // Unit vector direction
         float unit_x = (x[i] - x[c]) / d;

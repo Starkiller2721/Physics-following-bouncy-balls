@@ -1,5 +1,3 @@
-
-
 void collision()
 {
   for (int c = 0; c < y.length; c++)
@@ -27,6 +25,10 @@ void collision()
               float massC = pow(size[c], 2);
               float massI = pow(size[i], 2);
               
+              // Store initial momentum for debugging
+              float initialMomentumX = massC * xspeed[c] + massI * xspeed[i];
+              float initialMomentumY = massC * speed[c] + massI * speed[i];
+              
               float newSpeedC = ((massC - massI) * speed[c] + 2 * massI * speed[i]) / (massC + massI);
               float newSpeedI = ((massI - massC) * speed[i] + 2 * massC * speed[c]) / (massC + massI);
               float newXspeedC = ((massC - massI) * xspeed[c] + 2 * massI * xspeed[i]) / (massC + massI);
@@ -37,14 +39,26 @@ void collision()
               xspeed[c] = newXspeedC;
               xspeed[i] = newXspeedI;
               
-              xspeed[c] *= 0.98;  
-              speed[c] *= 0.98;
-              
               float elasticity = 0.9;  // 1.0 = perfect bounce, lower = more energy loss
               xspeed[c] *= elasticity;
               speed[c] *= elasticity;
               xspeed[i] *= elasticity;
               speed[i] *= elasticity;
+              
+              // Store final momentum for debugging
+              float finalMomentumX = massC * xspeed[c] + massI * xspeed[i];
+              float finalMomentumY = massC * speed[c] + massI * speed[i];
+              
+              // Round momentum change to avoid floating-point artifacts
+              float momentumChangeX = finalMomentumX - initialMomentumX;
+              float momentumChangeY = finalMomentumY - initialMomentumY;
+              
+              // Debugging output
+              //println("Collision between", c, i);
+              //println("Initial Momentum:", initialMomentumX, initialMomentumY);
+              //println("Final Momentum:", finalMomentumX, finalMomentumY);
+              //println("Momentum Change:", finalMomentumX - initialMomentumX, finalMomentumY - initialMomentumY);
+              //println();
             }
           }
         }

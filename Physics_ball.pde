@@ -4,18 +4,19 @@ float[] x = {960};
 float[] y = {100};
 
 float gravity = .98;
-float damping = 0.5;
+//perfect bounce = .969
+float damping = .6;
 float pushFactor = 0.6;
 
-int xspeedChange = 10;
-int yspeedChange = 10;
-int ballincrease = 100;
+int ballincrease = 0;
 int maxsize = 10;
 int minsize = 4;
 
 boolean auto_bounce = false;
 boolean ball_counter = false;
 boolean no_gravity = true;
+boolean controls = true;
+boolean labels = true;
 
 //walls
 boolean left = true;
@@ -29,7 +30,7 @@ boolean gdwn = true;
 boolean gleft = false;
 boolean gright = false;
 
-int[] size = {10};
+int[] size = {15};
 float g = 6.674e-4;
 
 //scalefactor:1
@@ -37,6 +38,10 @@ float scalefactor = 1;
 
 int[] ballcolor = {#FF0000};
 int[] colors = {#FF0000, #1CFF00, #FF00EF, #7E02E5, #00E8FF, #F6FF00, #FFE043, #0024FF, #FF8D00, #FF6CFF, #FE0002, #41FDFE, #BC13FE, #7e15db};
+
+float average = 0;
+float total = 0;
+float momentum = 0;
 
 void setup()
 {
@@ -56,30 +61,73 @@ void setup()
 
 void draw()
 {
-  background(0);
+  if (maxsize < minsize)
+  {
+    maxsize = minsize + 5;
+  }
   
-  ball();
-  collision();
+  momentum = 0;
+  average = 0;
+  total = 0;
+  background(0);
+ 
+  ball(); 
   gravity();
+  collision();
   
   //drawing ball
   for (int c = 0; c < y.length; c++)
   {
     fill(ballcolor[c]);
     ellipse(x[c], y[c], size[c], size[c]);
+    
+    total = total + size[c];
+    momentum = momentum + ((pow(size[c], 2) * (abs(speed[c]) + abs(xspeed[c]))) / size.length);
+    
+    if (labels)
+    {
+      fill(255);
+      text((pow(size[c], 2) * (abs(speed[c]) + abs(xspeed[c]))), x[c] + size[c], y[c] + size[c]);
+      text(c, x[c] + size[c], y[c] + size[c] - 10);
+    }
   }
   
-  //drawing a counter of every ball
+  average = total / size.length;
+  //drawing information
+  fill(0);
   if (ball_counter)
   {
+    rect(25,20,125,65);
     fill(255);
-    text(x.length,30, 30);
+    text(x.length + " Particles",30, 30);
+    text(scalefactor + "X speed", 30, 40);
+    text(ballincrease + " Ball Increase", 30, 50);
+    text(frameRate + " FPS", 30, 60);
+    text("Overall Mass = " + average, 30, 70);
+    text("Combined Mass = " + total, 30, 80);
+    text("Gravity constant = " + g, 30, 90);
+    text("Maxsize = " + maxsize, 30, 100);
+    text("Minsize = " + minsize, 30, 110);
+    text("average momentum = " + momentum, 30, 120);
+  }
+  
+  if (controls)
+  {
+    fill(255);
+    text("F = autobounce", 1700, 30);
+    text("E = Stats", 1700, 40);
+    text("R = Change Speed", 1700, 50);
+    text("Q = Increase Change", 1700, 60);
+    text("G = Toggle Gravity", 1700, 70);
+    text("WASD = Gravity Direction", 1700, 80);
+    text("Arrows = Wall toggle", 1700, 90);
+    text("Click = Place Particles", 1700, 100);
+    text("C = this panel", 1700, 110);
+    text("T = change gravity constant", 1700, 120);
+    text("+ = maxsize increase", 1700, 130);
+    text("- = minsize increase", 1700, 140);
   }
 }
-
-//**************************************
-//this function calculates ball physics
-//**************************************
 
 void ball()
 {
@@ -91,6 +139,7 @@ void ball()
     
     if (!no_gravity)
     {
+      //damping = -0.8;
       if (gdwn)
       {
         speed[c] += gravity;
@@ -118,7 +167,11 @@ void ball()
        xspeed[c] += .01;
       }
     }
-  
+    else
+    {
+      //damping = -0.5;
+    }
+    
     //wraps around left and right edges
     if (right)
     {

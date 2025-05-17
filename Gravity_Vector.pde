@@ -15,3 +15,27 @@ void drawGravityVector(float x, float y, float forceX, float forceY)
     strokeWeight(1);
     line(x, y, x + normX, y + normY);
 }
+
+void pull(Particle p)
+{
+  if (dist(p.x, p.y, mouseX, mouseY) < 200)
+  {
+    float dx = mouseX - p.x;
+    float dy = mouseY - p.y;
+    float distance = sqrt(dx * dx + dy * dy);
+    
+    float massC = p.size; 
+    float massI = 40;
+    float invDistSquared = 1.0 / (dx * dx + dy * dy + 0.01);
+    float force = g * massC * massI * invDistSquared;
+  
+    float unit_x = dx / distance;
+    float unit_y = dy / distance;
+  
+    float xAcceleration = force * unit_x;
+    float yAcceleration = force * unit_y;
+    
+    p.xspeed += xAcceleration;
+    p.yspeed += yAcceleration;
+  }
+}

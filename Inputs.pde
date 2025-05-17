@@ -10,6 +10,7 @@ void mouseWheel(MouseEvent event)
 
   // Apply zoom
   zoom = newZoom;
+  zoom = constrain(zoom,.1,25);
 
   // Compute new camera position to keep the same world position under the mouse
   cameraX = int(worldMouseX - (mouseX - width / 2) / zoom);
@@ -23,91 +24,94 @@ void mousePressed()
   {
     if (!readyfollow)
     {
-      if (mouseY < height - 50 && !orbital) 
+      if (mouseX < 1000 || mouseX > 1055 || mouseY < height - 120 || mouseY > height - 50)
       {
-        float x2 = ((mouseX - width / 2) / zoom) + cameraX;
-        float y2 = ((mouseY - height / 2) / zoom) + cameraY;
-
-        for (int i = 0; i < ballincrease; i++) 
+        if (mouseY < height - 50 && !orbital) 
         {
-          if (ballincrease > 1)
+          float x2 = ((mouseX - width / 2) / zoom) + cameraX;
+          float y2 = ((mouseY - height / 2) / zoom) + cameraY;
+  
+          for (int i = 0; i < ballincrease; i++) 
           {
-            particle.add(new Particle(x2 + int(random(-100, 100)), y2 + int(random(-100, 100)), 0, 0, int(random(minsize, maxsize)), color(colors[int(random(0, colors.length))])));
-            
+            if (ballincrease > 1)
+            {
+              particle.add(new Particle(x2 + int(random(-100, 100)), y2 + int(random(-100, 100)), 0, 0, int(random(minsize, maxsize)), color(colors[int(random(0, colors.length))]),0));
+              
+            }
+            else
+            {
+              particle.add(new Particle(x2, y2, 0, 0, int(random(minsize, maxsize)), color(colors[int(random(0, colors.length))]),0));
+            }
           }
-          else
-          {
-            particle.add(new Particle(x2, y2, 0, 0, int(random(minsize, maxsize)), color(colors[int(random(0, colors.length))])));
-          }
-        }
-      } 
-      else if (mouseY < height - 50 && orbital && ballincrease == 1) 
-      {
-        float x2 = ((mouseX - width / 2) / zoom) + cameraX;
-        float y2 = ((mouseY - height / 2) / zoom) + cameraY;
-
-        // Find the closest particle
-        int closestIndex = -1;
-        float minDistance = Float.MAX_VALUE;
-
-        for (int i = 0; i < particle.size(); i++) 
+        } 
+        else if (mouseY < height - 50 && orbital && ballincrease == 1) 
         {
-          float d = dist(x2, y2, particle.get(i).x, particle.get(i).y);
-          if (d < minDistance) 
+          float x2 = ((mouseX - width / 2) / zoom) + cameraX;
+          float y2 = ((mouseY - height / 2) / zoom) + cameraY;
+  
+          // Find the closest particle
+          int closestIndex = -1;
+          float minDistance = Float.MAX_VALUE;
+  
+          for (int i = 0; i < particle.size(); i++) 
           {
-            minDistance = d;
-            closestIndex = i;
+            float d = dist(x2, y2, particle.get(i).x, particle.get(i).y);
+            if (d < minDistance) 
+            {
+              minDistance = d;
+              closestIndex = i;
+            }
           }
-        }
-
-        // Ensure a valid particle is found and minimum safe distance
-        if (closestIndex != -1 && minDistance > 10) 
-        {  
-          Particle closest = particle.get(closestIndex);
-          float xc = closest.x;
-          float yc = closest.y;
-          float mass_c = closest.size;
-          int mass_p = int(random(minsize, maxsize));
-
-          float totalMass = mass_c + mass_p;
-
-          // **Increase Initial Distance Slightly** to prevent instant collision
-          float safeDistance = minDistance * 1.2f;
-          float angle = atan2(y2 - yc, x2 - xc);
-          x2 = xc + cos(angle) * safeDistance;
-          y2 = yc + sin(angle) * safeDistance;
-
-          // **Calculate Orbital Velocity**  
-          float v_orb = sqrt(g * totalMass / safeDistance);  
-
-          // Get perpendicular direction for orbit
-          float dx = x2 - xc;
-          float dy = y2 - yc;
-          float mag = sqrt(dx * dx + dy * dy) + 0.0001f; 
-
-          // Normalize and rotate 90 degrees (Counterclockwise)
-          float vx = (-dy / mag) * v_orb;
-          float vy = (dx / mag) * v_orb;
-
-          // Assign velocities based on mass ratios
-          float v1x = vx * (mass_p / totalMass);
-          float v1y = vy * (mass_p / totalMass);
-          float v2x = -vx * (mass_c / totalMass);
-          float v2y = -vy * (mass_c / totalMass);
-
-          // **Velocity Clamp to Prevent Instability**  
-          float maxvelocity = 50;
-          v1x = constrain(v1x, -maxvelocity, maxvelocity);
-          v1y = constrain(v1y, -maxvelocity, maxvelocity);
-          v2x = constrain(v2x, -maxvelocity, maxvelocity);
-          v2y = constrain(v2y, -maxvelocity, maxvelocity);
-
-          // Apply velocity to the closest particle
-          closest.xspeed += v1x;
-          closest.yspeed += v1y;
-
-          // Add new orbiting particle
-          particle.add(new Particle(x2, y2, v2x, v2y, mass_p, color(colors[int(random(0, colors.length))])));
+  
+          // Ensure a valid particle is found and minimum safe distance
+          if (closestIndex != -1 && minDistance > 10) 
+          {  
+            Particle closest = particle.get(closestIndex);
+            float xc = closest.x;
+            float yc = closest.y;
+            float mass_c = closest.size;
+            int mass_p = int(random(minsize, maxsize));
+  
+            float totalMass = mass_c + mass_p;
+  
+            // **Increase Initial Distance Slightly** to prevent instant collision
+            float safeDistance = minDistance * 1.2f;
+            float angle = atan2(y2 - yc, x2 - xc);
+            x2 = xc + cos(angle) * safeDistance;
+            y2 = yc + sin(angle) * safeDistance;
+  
+            // **Calculate Orbital Velocity**  
+            float v_orb = sqrt(g * totalMass / safeDistance);  
+  
+            // Get perpendicular direction for orbit
+            float dx = x2 - xc;
+            float dy = y2 - yc;
+            float mag = sqrt(dx * dx + dy * dy) + 0.0001f; 
+  
+            // Normalize and rotate 90 degrees (Counterclockwise)
+            float vx = (-dy / mag) * v_orb;
+            float vy = (dx / mag) * v_orb;
+  
+            // Assign velocities based on mass ratios
+            float v1x = vx * (mass_p / totalMass);
+            float v1y = vy * (mass_p / totalMass);
+            float v2x = -vx * (mass_c / totalMass);
+            float v2y = -vy * (mass_c / totalMass);
+  
+            // **Velocity Clamp to Prevent Instability**  
+            float maxvelocity = 50;
+            v1x = constrain(v1x, -maxvelocity, maxvelocity);
+            v1y = constrain(v1y, -maxvelocity, maxvelocity);
+            v2x = constrain(v2x, -maxvelocity, maxvelocity);
+            v2y = constrain(v2y, -maxvelocity, maxvelocity);
+  
+            // Apply velocity to the closest particle
+            closest.xspeed += v1x;
+            closest.yspeed += v1y;
+  
+            // Add new orbiting particle
+            particle.add(new Particle(x2, y2, v2x, v2y, mass_p, color(colors[int(random(0, colors.length))]),0));
+          }
         }
       }
     }
@@ -305,6 +309,41 @@ void mousePressed()
         readyfollow = false;
         button7 = false;
       }
+    }
+    
+    if (mouseX > 880 && mouseX < 925 && mouseY > height - 40 && mouseY < height - 10)
+    {
+      if (!button8)
+      {
+        for (Particle p : particle)
+        {
+          p.xspeed = 0;
+          p.yspeed = 0;
+        }
+        button8 = false;
+      }
+    }
+    
+    if (mouseX > 940 && mouseX < 985 && mouseY > height - 40 && mouseY < height - 10)
+    {
+      button9 = !button9;
+      mouseAttractMode = !mouseAttractMode;
+    }
+    
+    if (mouseX > 1000 && mouseX < 1045 && mouseY > height - 40 && mouseY < height - 10)
+    {
+      button10[0] = !button10[0];
+      setting = !setting;
+    }
+    
+    if (mouseX > 1005 && mouseX < 1050 && mouseY > height - 115 && mouseY < height - 85)
+    {
+      selectOutput("Select a folder to save:", "filePathSelected");
+    }
+    
+    if (mouseX > 1005 && mouseX < 1050 && mouseY > height - 80 && mouseY < height - 50)
+    {
+      selectInput("Select a JSON file to load particles:", "fileSelected");
     }
   }
 }
